@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-beacon-radar": ["./src/index"]
+      "react-native-beacon-radar-demo": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

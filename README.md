@@ -1,4 +1,4 @@
-# react-native-beacon-radar
+# react-native-beacon-radar-demo
 
 ## CURRENTLY IN PROGRESS.... RIGHT NOW ONLY SCANS FOR CERTAIN IBEACON
 
@@ -7,18 +7,18 @@ Package to scan for iBeacons on both Android and IOS. This module is fully compa
 ## Installation
 
 ```sh
-npm install react-native-beacon-radar
+npm install react-native-beacon-radar-demo
 ```
 OR
 ```sh
-yarn add react-native-beacon-radar
+yarn add react-native-beacon-radar-demo
 ```
 
 ## Basic usage
 
 ```js
 import { DeviceEventEmitter } from 'react-native';
-import { startScanning } from 'react-native-beacon-radar';
+import { startScanning } from 'react-native-beacon-radar-demo';
 
 // ...
 
@@ -59,7 +59,7 @@ This module will work with the Expo managed workflow. It will not however work w
     }
   },
   "plugins": [
-    "react-native-beacon-radar"
+    "react-native-beacon-radar-demo"
   ]
 }
 ```

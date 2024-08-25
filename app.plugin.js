@@ -4,7 +4,7 @@ const withBeaconRadar = require('./expo-plugin/withBeaconRadar');
 // A helper function to ensure the plugin is only run once per config
 const withRunOnceBeaconRadar = createRunOncePlugin(
   withBeaconRadar,
-  'react-native-beacon-radar'
+  'react-native-beacon-radar-demo'
 );
 
 module.exports = (config) => {

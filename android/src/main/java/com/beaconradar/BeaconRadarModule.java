@@ -60,17 +60,30 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
   private final BluetoothAdapter bluetoothAdapter;
 
 
-  public BeaconRadarModule(ReactApplicationContext reactContext) {
+public BeaconRadarModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
     beaconManager = BeaconManager.getInstanceForApplication(reactContext);
+
+    // Add iBeacon parser
     beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
+
+    // Add Eddystone UID parser
+    beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
+
+    // Add Eddystone URL parser
+    beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
+
+    // Add Eddystone TLM parser (if you need telemetry data)
+    beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
+
     region = new Region("RNIbeaconScannerRegion", null, null, null);
 
     instance = this;
 
     bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-  }
+}
+
 
   public static BeaconRadarModule getInstance() {
     return instance;
@@ -242,15 +255,30 @@ public class BeaconRadarModule extends ReactContextBaseJavaModule implements Per
           WritableArray beaconArray = Arguments.createArray();
 
           for (Beacon beacon : beacons) {
-            WritableMap beaconMap = Arguments.createMap();
-            beaconMap.putString("uuid", beacon.getId1().toString());
-            beaconMap.putInt("major", beacon.getId2().toInt());
-            beaconMap.putInt("minor", beacon.getId3().toInt());
-            beaconMap.putDouble("distance", beacon.getDistance());
-            beaconMap.putString("name", beacon.getBluetoothName());
+              WritableMap beaconMap = Arguments.createMap();
+              if (beacon.getBeaconTypeCode() == 0x00) {  // Eddystone UID
+                  beaconMap.putString("type", "Eddystone UID");
+                  beaconMap.putString("id1", beacon.getId1().toString());  // Namespace ID
+                  beaconMap.putString("id2", beacon.getId2().toString());  // Instance ID
+              } else if (beacon.getBeaconTypeCode() == 0x10) {  // Eddystone URL
+                  beaconMap.putString("type", "Eddystone URL");
+                  beaconMap.putString("url", beacon.getId1().toString());  // URL
+              } else if (beacon.getBeaconTypeCode() == 0x20) {  // Eddystone TLM
+                  beaconMap.putString("type", "Eddystone TLM");
+                  beaconMap.putDouble("voltage", beacon.getDataFields().get(0));  // Example telemetry data
+                  beaconMap.putDouble("temperature", beacon.getDataFields().get(1));
+              } else if (beacon.getBeaconTypeCode() == 0x0215) {  // iBeacon
+                  beaconMap.putString("type", "iBeacon");
+                  beaconMap.putString("uuid", beacon.getId1().toString());
+                  beaconMap.putInt("major", beacon.getId2().toInt());
+                  beaconMap.putInt("minor", beacon.getId3().toInt());
+              }
+              beaconMap.putDouble("distance", beacon.getDistance());
+              beaconMap.putString("name", beacon.getBluetoothName());
 
-            beaconArray.pushMap(beaconMap);
+              beaconArray.pushMap(beaconMap);
           }
+
 
           getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
